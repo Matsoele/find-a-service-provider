@@ -1,7 +1,6 @@
 import axios from 'axios';
 
-export const API_BASE = import.meta.env.VITE_API || 'http://localhost:5000';
-
+export const API_BASE = 'https://fasp-backend.onrender.com';
 export const api = axios.create({ baseURL: `${API_BASE}/api` });
 
 // Attach provider token
