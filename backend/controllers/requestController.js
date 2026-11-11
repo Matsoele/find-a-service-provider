@@ -1,5 +1,6 @@
 import { pool } from '../config/db.js';
 import { v4 as uuid } from 'uuid';
+import { generateBlockchainHash } from '../utils/blockchain.js'; // ADDED BLOCKCHAIN IMPORT
 
 const makeRef = () => 'FSP-' + uuid().slice(0, 8).toUpperCase();
 
@@ -8,11 +9,18 @@ export const createRequest = async (req, res) => {
     const { provider_id, service_id, description, location, preferred_date } = req.body;
     const c = req.customer;
     const ref = makeRef();
+
+    // --- BLOCKCHAIN IMPLEMENTATION ---
+    // Create a hash of the request details to ensure integrity
+    const hashData = { provider_id, customer_id: c.customer_id, description, location, preferred_date };
+    const blockchainHash = generateBlockchainHash(hashData);
+    // ---------------------------------
+
     const r = (await pool.query(
       `INSERT INTO service_requests
-       (reference_number, customer_id, provider_id, service_id, description, location, preferred_date)
-       VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
-      [ref, c.customer_id, provider_id, service_id || null, description, location, preferred_date]
+       (reference_number, customer_id, provider_id, service_id, description, location, preferred_date, blockchain_hash)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
+      [ref, c.customer_id, provider_id, service_id || null, description, location, preferred_date, blockchainHash]
     )).rows[0];
 
     const provUser = (await pool.query('SELECT user_id FROM providers WHERE provider_id=$1', [provider_id])).rows[0];
