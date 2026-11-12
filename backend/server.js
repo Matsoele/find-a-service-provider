@@ -25,12 +25,17 @@ const corsOptions = {
     // Allow requests with no origin (like mobile apps, curl, postman)
     if (!origin) return callback(null, true);
     
-    // Allow any localhost port dynamically (5173, 5174, 5176, etc.)
-    if (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) {
+    // Allow localhost, any Render URL, and any Netlify URL dynamically
+    if (
+      origin.startsWith('http://localhost:') || 
+      origin.startsWith('http://127.0.0.1:') ||
+      origin.endsWith('.onrender.com') ||
+      origin.endsWith('.netlify.app')
+    ) {
       return callback(null, true);
     }
     
-    // Allow the production URL from .env
+    // Allow the specific production URL from .env
     if (origin === process.env.FRONTEND_URL) {
       return callback(null, true);
     }
