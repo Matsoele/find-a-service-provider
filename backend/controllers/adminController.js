@@ -51,18 +51,16 @@ export const activityLog = async (_req, res) => {
   res.json(r);
 };
 
-// --- ADDED: BLOCKCHAIN LEDGER FUNCTION ---
+// --- UPDATED: BLOCKCHAIN LEDGER FUNCTION ---
 export const getBlockchainLedger = async (_req, res) => {
   try {
+    // Fetch from the new custom blockchain_ledger table
     const result = await pool.query(
-      `SELECT reference_number, blockchain_hash, status, created_at 
-       FROM service_requests 
-       WHERE blockchain_hash IS NOT NULL 
-       ORDER BY created_at DESC`
+      'SELECT * FROM blockchain_ledger ORDER BY block_height DESC'
     );
     res.json(result.rows);
   } catch (err) {
-    console.error(err);
+    console.error("Blockchain fetch error:", err);
     res.status(500).json({ error: 'Failed to fetch ledger' });
   }
 };
